@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calendar-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calendar-api
+  template:
+    metadata:
+      labels:
+        app: calendar-api
+    spec:
+      containers:
+      - name: calendar-api
+        image: calendar-api-image  # Use the image name you build for your calendar API
+        ports:
+        - containerPort: 8000
+        env:
+        - name: APP_NAME
+          value: "CalendarService"
+        - name: DATABASE_URL
+          value: "postgresql://calendar:password123@db/calendar"

@@ -11,6 +11,8 @@ services:
       - DATABASE_URL=postgresql://calendar:password123@db/calendar
     depends_on:
       - db
+    networks:
+      - calendar_net
 
   db:
     image: postgres:13-alpine
@@ -22,12 +24,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - calendar_net
 
 networks:
-  frontend:
-    driver: custom-driver-1
-  backend:
-    driver: custom-driver-2
+  calendar_net:
 
 volumes:
   postgres_data:
