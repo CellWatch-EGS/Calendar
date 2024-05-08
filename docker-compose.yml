@@ -16,10 +16,8 @@ services:
 
   db:
     image: postgres:13-alpine
-    environment:
-      POSTGRES_DB: calendar           # Name of the database
-      POSTGRES_USER: calendar    # Username for the database
-      POSTGRES_PASSWORD: password123 # Password for the database user
+    env_file:
+      - database.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
