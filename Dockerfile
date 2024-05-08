@@ -1,8 +1,6 @@
-FROM python:3.9-alpine
+FROM python:3.8-alpine
 
 WORKDIR /calendar_app
-
-RUN apk add --no-cache build-base libpq
 
 COPY . /calendar_app
 
