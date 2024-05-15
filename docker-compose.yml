@@ -8,13 +8,13 @@ services:
       - "8000:8000"
     environment:
       - APP_NAME=CalendarService
-      - DATABASE_URL=postgresql://calendar:password123@db/calendar
+      - DATABASE_URL=postgresql://calendar:password123@calendar_db/calendar
     depends_on:
-      - db
+      - calendar_db
     networks:
       - calendar_net
 
-  db:
+  calendar_db:
     image: postgres:13-alpine
     env_file:
       - database.env
