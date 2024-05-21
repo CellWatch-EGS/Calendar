@@ -1,7 +1,7 @@
 import requests
 import uuid
 
-BASE_URL = "http://127.0.0.1:8000/v1"
+BASE_URL = "http://localhost:8000/v1"
 TOKEN = "8ecadf46-9364-4e3a-b79d-182d6a259a75"
 
 headers = {
