@@ -13,6 +13,7 @@ services:
       - calendar_db
     networks:
       - calendar_net
+    image: registry.deti/cellwatch/calendar_api:latest
       
   calendar_db:
     image: postgres:13-alpine
