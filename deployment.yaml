@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+  namespace: egs-cellwatch
+type: Opaque
+data:
+  database-url: cG9zdGdyZXNxbDovL2NhbGVuZGFyOnBhc3N3b3JkMTIzQGRiL2NhbGVuZGFy
+  POSTGRES_PASSWORD: cGFzc3dvcmQxMjM=  # Base64 encoded value of 'password123'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calendar-service
+  namespace: egs-cellwatch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calendar-service
+  template:
+    metadata:
+      labels:
+        app: calendar-service
+    spec:
+      containers:
+      - name: calendar-service
+        image: registry.deti/egs-cellwatch/calendar-service:v1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: database-url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calendar-service
+  namespace: egs-cellwatch
+spec:
+  selector:
+    app: calendar-service
+  ports:
+    - port: 80
+      targetPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: calendar-egs
+  namespace: egs-cellwatch
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+spec:
+  rules:
+  - host: egs-cellwatch.com
+    http:
+      paths:
+      - path: /calendar
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port: 
+              number: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calendar-db
+  namespace: egs-cellwatch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calendar-db
+    template:
+      metadata:
+        labels:
+          app: calendar-db
+      spec:
+        containers:
+          - name: calendar-db
+            image: postgres:13.2-alpine
+            env:
+              - name: POSTGRES_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: db-credentials
+                    key: POSTGRES_PASSWORD
+
+            volumeMounts:
+              - name: init-script
+                mountPath: /docker-entrypoint-initdb.d
+            ports:
+              - containerPort: 5434
+            volumes:
+              - name: init-script
+                configMap:
+                  name: postgres-init-script
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calendar-db
+  namespace: egs-cellwatch
+spec:
+  selector:
+    app: calendar-db
+  ports:
+    - protocol: TCP
+      port: 5434
+      targetPort: 5434
