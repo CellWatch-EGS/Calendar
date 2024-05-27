@@ -19,12 +19,8 @@ EXPOSE 8000
 # Set environment variables
 ENV APP_NAME="CalendarService"
 
-# Add the wait-for-it script
-COPY wait-for-it.sh /wait-for-it.sh
-RUN chmod +x /wait-for-it.sh
-
 # Ensure database initialization script is executable
 COPY init_db.py init_db.py
 
-# Command to run the wait-for-it script before starting the application
-CMD ["/wait-for-it.sh", "calendar_db:5432", "--", "sh", "-c", "python init_db.py && uvicorn main:app --host 0.0.0.0 --port 8000"]
+# Command to start the application
+CMD ["sh", "-c", "python init_db.py && uvicorn main:app --host 0.0.0.0 --port 8000"]
